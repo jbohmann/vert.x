@@ -43,12 +43,21 @@ public class BlockedThreadChecker {
       public void run() {
         long now = System.nanoTime();
         for (VertxThread thread: threads.keySet()) {
+
           //use the thread's max exec time if available
-          Long limit = thread.getContext().getDeployment().deploymentOptions().getMaxExecTime();
-          if(DeploymentOptions.MAX_EXEC_TIME_IGNORE.equals(limit)) {
-              continue;
+          Long limit = null;
+          ContextImpl context = thread.getContext();
+          if(context != null) {
+            Deployment deployment = context.getDeployment();
+            if(deployment != null) {
+              limit = deployment.deploymentOptions().getMaxExecutionTime();
+              if (DeploymentOptions.MAX_EXECUTION_TIME_IGNORE == limit) {
+                  continue; //no limit for this thread
+              }
+            }
           }
-          else if(limit == null) {
+
+          if(limit == null) {
             //use fallback values if thread does not specify
             limit = thread.isWorker() ? maxWorkerExecTime : maxEventLoopExecTime;
           }

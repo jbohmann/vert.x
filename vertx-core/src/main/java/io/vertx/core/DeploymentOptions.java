@@ -29,14 +29,15 @@ import io.vertx.core.json.JsonObject;
 @Options
 public class DeploymentOptions {
 
-  public static final Long MAX_EXEC_TIME_IGNORE = -1l;
+  public static final long MAX_EXECUTION_TIME_IGNORE = -1l;
+
   private JsonObject config;
   private boolean worker;
   private boolean multiThreaded;
   private String isolationGroup;
   private boolean ha;
   private List<String> extraClasspath;
-  private Long maxExecTime;
+  private Long maxExecutionTime;
 
   public DeploymentOptions() {
   }
@@ -48,7 +49,7 @@ public class DeploymentOptions {
     this.isolationGroup = other.getIsolationGroup();
     this.ha = other.isHA();
     this.extraClasspath = other.getExtraClasspath() == null ? null : new ArrayList<>(other.getExtraClasspath());
-    this.maxExecTime = other.getMaxExecTime();
+    this.maxExecutionTime = other.getMaxExecutionTime();
   }
 
   public DeploymentOptions(JsonObject json) {
@@ -61,7 +62,7 @@ public class DeploymentOptions {
     if (arr != null) {
       this.extraClasspath = arr.toList();
     }
-    this.maxExecTime = json.getLong("maxExecTime");
+    this.maxExecutionTime = json.getLong("maxExecutionTime");
   }
 
   public JsonObject getConfig() {
@@ -108,7 +109,7 @@ public class DeploymentOptions {
     if (ha) json.putBoolean("ha", true);
     if (config != null) json.putObject("config", config);
     if (extraClasspath != null) json.putArray("extraClasspath", new JsonArray(extraClasspath));
-    if (maxExecTime != null) json.putNumber("maxExecTime", maxExecTime);
+    if (maxExecutionTime != null) json.putNumber("maxExecutionTime", maxExecutionTime);
     return json;
   }
 
@@ -130,12 +131,12 @@ public class DeploymentOptions {
     return this;
   }
 
-  public Long getMaxExecTime() {
-    return maxExecTime;
+  public Long getMaxExecutionTime() {
+    return maxExecutionTime;
   }
 
-  public DeploymentOptions setMaxExecTime(Long maxExecTime) {
-    this.maxExecTime = maxExecTime;
+  public DeploymentOptions setMaxExecutionTime(Long maxExecutionTime) {
+    this.maxExecutionTime = maxExecutionTime;
     return this;
   }
 
@@ -154,7 +155,7 @@ public class DeploymentOptions {
       return false;
     if (isolationGroup != null ? !isolationGroup.equals(that.isolationGroup) : that.isolationGroup != null)
       return false;
-    if (maxExecTime != null ? !maxExecTime.equals(that.maxExecTime) : that.maxExecTime != null)
+    if (maxExecutionTime != null ? !maxExecutionTime.equals(that.maxExecutionTime) : that.maxExecutionTime != null)
       return false;
 
     return true;
@@ -168,7 +169,7 @@ public class DeploymentOptions {
     result = 31 * result + (isolationGroup != null ? isolationGroup.hashCode() : 0);
     result = 31 * result + (ha ? 1 : 0);
     result = 31 * result + (extraClasspath != null ? extraClasspath.hashCode() : 0);
-    result = 31 * result + (maxExecTime != null ? maxExecTime.hashCode() : 0);
+    result = 31 * result + (maxExecutionTime != null ? maxExecutionTime.hashCode() : 0);
     return result;
   }
 }
