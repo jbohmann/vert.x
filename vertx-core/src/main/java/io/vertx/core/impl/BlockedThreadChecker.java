@@ -16,13 +16,14 @@
 
 package io.vertx.core.impl;
 
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.impl.LoggerFactory;
-
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.WeakHashMap;
+
+import io.vertx.core.DeploymentOptions;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.impl.LoggerFactory;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
@@ -42,9 +43,28 @@ public class BlockedThreadChecker {
       public void run() {
         long now = System.nanoTime();
         for (VertxThread thread: threads.keySet()) {
+
+          //use the thread's max exec time if available
+          Long limit = null;
+          ContextImpl context = thread.getContext();
+          if(context != null) {
+            Deployment deployment = context.getDeployment();
+            if(deployment != null) {
+              limit = deployment.deploymentOptions().getMaxExecutionTime();
+              if (DeploymentOptions.MAX_EXECUTION_TIME_IGNORE == limit) {
+                  continue; //no limit for this thread
+              }
+            }
+          }
+
+          if(limit == null) {
+            //use fallback values if thread does not specify
+            limit = thread.isWorker() ? maxWorkerExecTime : maxEventLoopExecTime;
+          }
+
           long execStart = thread.startTime();
           long dur = now - execStart;
-          if (execStart != 0 && dur > (thread.isWorker() ? maxWorkerExecTime : maxEventLoopExecTime)) {
+          if (execStart != 0 && dur > limit) {
             log.warn("Thread " + thread + " has been blocked for " + (dur / 1000000) + " ms" + " time " + maxEventLoopExecTime);
             if (dur/1000000 > 5000) {
               StackTraceElement[] stack = thread.getStackTrace();

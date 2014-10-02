@@ -16,13 +16,12 @@
 
 package io.vertx.core;
 
-import io.vertx.codegen.annotations.Options;
-import io.vertx.core.DeploymentOptions;
-import io.vertx.core.json.JsonArray;
-import io.vertx.core.json.JsonObject;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import io.vertx.codegen.annotations.Options;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 
 /**
  * @author <a href="http://tfox.org">Tim Fox</a>
@@ -30,12 +29,15 @@ import java.util.List;
 @Options
 public class DeploymentOptions {
 
+  public static final long MAX_EXECUTION_TIME_IGNORE = -1l;
+
   private JsonObject config;
   private boolean worker;
   private boolean multiThreaded;
   private String isolationGroup;
   private boolean ha;
   private List<String> extraClasspath;
+  private Long maxExecutionTime;
 
   public DeploymentOptions() {
   }
@@ -47,6 +49,7 @@ public class DeploymentOptions {
     this.isolationGroup = other.getIsolationGroup();
     this.ha = other.isHA();
     this.extraClasspath = other.getExtraClasspath() == null ? null : new ArrayList<>(other.getExtraClasspath());
+    this.maxExecutionTime = other.getMaxExecutionTime();
   }
 
   public DeploymentOptions(JsonObject json) {
@@ -59,6 +62,7 @@ public class DeploymentOptions {
     if (arr != null) {
       this.extraClasspath = arr.toList();
     }
+    this.maxExecutionTime = json.getLong("maxExecutionTime");
   }
 
   public JsonObject getConfig() {
@@ -105,6 +109,7 @@ public class DeploymentOptions {
     if (ha) json.putBoolean("ha", true);
     if (config != null) json.putObject("config", config);
     if (extraClasspath != null) json.putArray("extraClasspath", new JsonArray(extraClasspath));
+    if (maxExecutionTime != null) json.putNumber("maxExecutionTime", maxExecutionTime);
     return json;
   }
 
@@ -126,6 +131,15 @@ public class DeploymentOptions {
     return this;
   }
 
+  public Long getMaxExecutionTime() {
+    return maxExecutionTime;
+  }
+
+  public DeploymentOptions setMaxExecutionTime(Long maxExecutionTime) {
+    this.maxExecutionTime = maxExecutionTime;
+    return this;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
@@ -141,6 +155,8 @@ public class DeploymentOptions {
       return false;
     if (isolationGroup != null ? !isolationGroup.equals(that.isolationGroup) : that.isolationGroup != null)
       return false;
+    if (maxExecutionTime != null ? !maxExecutionTime.equals(that.maxExecutionTime) : that.maxExecutionTime != null)
+      return false;
 
     return true;
   }
@@ -153,6 +169,7 @@ public class DeploymentOptions {
     result = 31 * result + (isolationGroup != null ? isolationGroup.hashCode() : 0);
     result = 31 * result + (ha ? 1 : 0);
     result = 31 * result + (extraClasspath != null ? extraClasspath.hashCode() : 0);
+    result = 31 * result + (maxExecutionTime != null ? maxExecutionTime.hashCode() : 0);
     return result;
   }
 }
